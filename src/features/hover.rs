@@ -5,12 +5,7 @@ use crate::lang::LangHandler;
 use crate::util::{find_node_at_position, node_range, node_text};
 
 /// Generate hover information for the symbol at the given position.
-pub fn hover(
-    handler: &dyn LangHandler,
-    tree: &Tree,
-    src: &str,
-    pos: Position,
-) -> Option<Hover> {
+pub fn hover(handler: &dyn LangHandler, tree: &Tree, src: &str, pos: Position) -> Option<Hover> {
     let node = find_node_at_position(tree, pos)?;
     let text = node_text(&node, src);
 
@@ -58,11 +53,7 @@ pub fn hover(
     }
 
     // For type keywords (field types)
-    let type_nodes = [
-        "base_type",
-        "field_type",
-        "data_type",
-    ];
+    let type_nodes = ["base_type", "field_type", "data_type"];
     if type_nodes.contains(&node.kind()) {
         return Some(Hover {
             contents: HoverContents::Markup(MarkupContent {
@@ -77,11 +68,7 @@ pub fn hover(
 }
 
 /// Try to find context about what a symbol is (e.g. "rule", "window", "event alias").
-fn find_definition_context(
-    node: &tree_sitter::Node,
-    _tree: &Tree,
-    _src: &str,
-) -> Option<String> {
+fn find_definition_context(node: &tree_sitter::Node, _tree: &Tree, _src: &str) -> Option<String> {
     let parent = node.parent()?;
 
     match parent.kind() {

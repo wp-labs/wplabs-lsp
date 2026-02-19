@@ -4,7 +4,7 @@ mod envs  {
    env _common  : rust_env.init   {
     root      = ".";
     target_name = "";
-    prj_key   = "warp-parse" ;
+    prj_key   = "wp-lsp" ;
     DIST_REPO = "unknow";
     PATCH_FLAG = "#";
 

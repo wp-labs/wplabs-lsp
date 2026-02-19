@@ -4,11 +4,7 @@ use tree_sitter::Tree;
 use crate::lang::LangHandler;
 
 /// Format the entire document.
-pub fn format_document(
-    handler: &dyn LangHandler,
-    tree: &Tree,
-    src: &str,
-) -> Option<Vec<TextEdit>> {
+pub fn format_document(handler: &dyn LangHandler, tree: &Tree, src: &str) -> Option<Vec<TextEdit>> {
     let formatted = handler.format_document(tree, src)?;
 
     if formatted == src {

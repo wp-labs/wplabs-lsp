@@ -29,7 +29,9 @@ pub fn goto_definition(
         .collect();
 
     if locations.len() == 1 {
-        Some(GotoDefinitionResponse::Scalar(locations.into_iter().next().unwrap()))
+        Some(GotoDefinitionResponse::Scalar(
+            locations.into_iter().next().unwrap(),
+        ))
     } else {
         Some(GotoDefinitionResponse::Array(locations))
     }

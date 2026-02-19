@@ -21,10 +21,9 @@ impl LangHandler for OmlHandler {
 
     fn keywords(&self) -> &[&str] {
         &[
-            "name", "rule", "read", "take", "pipe", "fmt", "object",
-            "collect", "match", "select", "from", "where", "and", "or",
-            "not", "in", "auto", "ip", "chars", "digit", "float", "time",
-            "bool", "obj", "array",
+            "name", "rule", "read", "take", "pipe", "fmt", "object", "collect", "match", "select",
+            "from", "where", "and", "or", "not", "in", "auto", "ip", "chars", "digit", "float",
+            "time", "bool", "obj", "array",
         ]
     }
 
@@ -114,12 +113,7 @@ fn collect_target_symbols(node: &tree_sitter::Node, src: &str, symbols: &mut Vec
     }
 }
 
-fn collect_target_defs(
-    node: tree_sitter::Node,
-    src: &str,
-    name: &str,
-    defs: &mut Vec<Range>,
-) {
+fn collect_target_defs(node: tree_sitter::Node, src: &str, name: &str, defs: &mut Vec<Range>) {
     if node.kind() == "target" {
         if let Some(name_node) = node.child_by_field_name("name") {
             if node_text(&name_node, src) == name {

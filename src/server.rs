@@ -200,10 +200,7 @@ impl LanguageServer for WfLsp {
         ))
     }
 
-    async fn references(
-        &self,
-        params: ReferenceParams,
-    ) -> jsonrpc::Result<Option<Vec<Location>>> {
+    async fn references(&self, params: ReferenceParams) -> jsonrpc::Result<Option<Vec<Location>>> {
         let uri = &params.text_document_position.text_document.uri;
         let pos = params.text_document_position.position;
         let include_decl = params.context.include_declaration;

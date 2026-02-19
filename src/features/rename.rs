@@ -8,11 +8,7 @@ use crate::util::{find_node_at_position, node_text};
 
 /// Prepare a rename operation: find the symbol at the cursor and return its range.
 #[allow(dead_code)]
-pub fn prepare_rename(
-    tree: &Tree,
-    _src: &str,
-    pos: Position,
-) -> Option<Range> {
+pub fn prepare_rename(tree: &Tree, _src: &str, pos: Position) -> Option<Range> {
     let node = find_node_at_position(tree, pos)?;
     if node.kind() != "identifier" {
         return None;

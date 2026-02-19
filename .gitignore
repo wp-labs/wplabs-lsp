@@ -1,3 +1,4 @@
 # Rust artifacts
 target/
 .report
+.run.gxl

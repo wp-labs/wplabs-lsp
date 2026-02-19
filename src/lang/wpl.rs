@@ -21,9 +21,23 @@ impl LangHandler for WplHandler {
 
     fn keywords(&self) -> &[&str] {
         &[
-            "package", "rule", "field", "metadata", "length", "format",
-            "pipe", "separator", "target", "type", "tag", "copy_raw",
-            "alt", "opt", "some_of", "seq", "not",
+            "package",
+            "rule",
+            "field",
+            "metadata",
+            "length",
+            "format",
+            "pipe",
+            "separator",
+            "target",
+            "type",
+            "tag",
+            "copy_raw",
+            "alt",
+            "opt",
+            "some_of",
+            "seq",
+            "not",
         ]
     }
 
@@ -125,14 +139,8 @@ fn find_decl_defs(node: tree_sitter::Node, src: &str, name: &str, defs: &mut Vec
     }
 }
 
-fn collect_identifier_refs(
-    node: tree_sitter::Node,
-    src: &str,
-    name: &str,
-    refs: &mut Vec<Range>,
-) {
-    if (node.kind() == "identifier" || node.kind() == "path_name")
-        && node_text(&node, src) == name
+fn collect_identifier_refs(node: tree_sitter::Node, src: &str, name: &str, refs: &mut Vec<Range>) {
+    if (node.kind() == "identifier" || node.kind() == "path_name") && node_text(&node, src) == name
     {
         refs.push(node_range(&node));
     }

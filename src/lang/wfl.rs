@@ -21,10 +21,9 @@ impl LangHandler for WflHandler {
 
     fn keywords(&self) -> &[&str] {
         &[
-            "use", "rule", "meta", "events", "match", "keys", "duration",
-            "on", "event", "close", "score", "entity", "yield", "contract",
-            "given", "expect", "derive", "stage", "and", "or", "not", "in",
-            "true", "false", "if", "then", "else", "join", "conv",
+            "use", "rule", "meta", "events", "match", "keys", "duration", "on", "event", "close",
+            "score", "entity", "yield", "contract", "given", "expect", "derive", "stage", "and",
+            "or", "not", "in", "true", "false", "if", "then", "else", "join", "conv",
         ]
     }
 
@@ -159,12 +158,7 @@ fn collect_event_def_ranges(
     }
 }
 
-fn collect_identifier_refs(
-    node: tree_sitter::Node,
-    src: &str,
-    name: &str,
-    refs: &mut Vec<Range>,
-) {
+fn collect_identifier_refs(node: tree_sitter::Node, src: &str, name: &str, refs: &mut Vec<Range>) {
     if node.kind() == "identifier" && node_text(&node, src) == name {
         refs.push(node_range(&node));
     }

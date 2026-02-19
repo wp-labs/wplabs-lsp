@@ -31,7 +31,10 @@ pub fn node_text<'a>(node: &Node, src: &'a str) -> &'a str {
 }
 
 /// Find the smallest named node at the given LSP position.
-pub fn find_node_at_position<'a>(tree: &'a tree_sitter::Tree, pos: Position) -> Option<tree_sitter::Node<'a>> {
+pub fn find_node_at_position<'a>(
+    tree: &'a tree_sitter::Tree,
+    pos: Position,
+) -> Option<tree_sitter::Node<'a>> {
     let point = position_to_ts_point(pos);
     let root = tree.root_node();
     root.named_descendant_for_point_range(point, point)

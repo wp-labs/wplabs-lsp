@@ -21,10 +21,27 @@ impl LangHandler for WfgHandler {
 
     fn keywords(&self) -> &[&str] {
         &[
-            "use", "scenario", "seed", "time", "duration", "total",
-            "stream", "inject", "for", "on", "faults", "oracle", "hit",
-            "near_miss", "non_hit", "true", "false", "out_of_order",
-            "late", "duplicate", "drop",
+            "use",
+            "scenario",
+            "seed",
+            "time",
+            "duration",
+            "total",
+            "stream",
+            "inject",
+            "for",
+            "on",
+            "faults",
+            "oracle",
+            "hit",
+            "near_miss",
+            "non_hit",
+            "true",
+            "false",
+            "out_of_order",
+            "late",
+            "duplicate",
+            "drop",
         ]
     }
 
@@ -114,12 +131,7 @@ fn collect_inject_symbols(node: &tree_sitter::Node, src: &str, symbols: &mut Vec
     }
 }
 
-fn find_scenario_defs(
-    node: tree_sitter::Node,
-    src: &str,
-    name: &str,
-    defs: &mut Vec<Range>,
-) {
+fn find_scenario_defs(node: tree_sitter::Node, src: &str, name: &str, defs: &mut Vec<Range>) {
     match node.kind() {
         "scenario_declaration" => {
             if let Some(name_node) = node.child_by_field_name("name") {
@@ -144,12 +156,7 @@ fn find_scenario_defs(
     }
 }
 
-fn collect_identifier_refs(
-    node: tree_sitter::Node,
-    src: &str,
-    name: &str,
-    refs: &mut Vec<Range>,
-) {
+fn collect_identifier_refs(node: tree_sitter::Node, src: &str, name: &str, refs: &mut Vec<Range>) {
     if node.kind() == "identifier" && node_text(&node, src) == name {
         refs.push(node_range(&node));
     }
@@ -196,7 +203,8 @@ static BUILTINS: [BuiltinInfo; 7] = [
     BuiltinInfo {
         name: "pattern",
         signature: "pattern(template)",
-        documentation: "Generate values from a template pattern. Supports {seq:NNNN} for sequences.",
+        documentation:
+            "Generate values from a template pattern. Supports {seq:NNNN} for sequences.",
         kind: CompletionItemKind::FUNCTION,
     },
     BuiltinInfo {

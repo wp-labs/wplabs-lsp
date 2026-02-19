@@ -113,12 +113,7 @@ fn collect_field_symbols(node: &tree_sitter::Node, src: &str, symbols: &mut Vec<
     }
 }
 
-fn collect_field_defs(
-    node: &tree_sitter::Node,
-    src: &str,
-    name: &str,
-    defs: &mut Vec<Range>,
-) {
+fn collect_field_defs(node: &tree_sitter::Node, src: &str, name: &str, defs: &mut Vec<Range>) {
     for i in 0..node.named_child_count() {
         let Some(child) = node.named_child(i) else {
             continue;
@@ -134,12 +129,7 @@ fn collect_field_defs(
     }
 }
 
-fn collect_identifier_refs(
-    node: tree_sitter::Node,
-    src: &str,
-    name: &str,
-    refs: &mut Vec<Range>,
-) {
+fn collect_identifier_refs(node: tree_sitter::Node, src: &str, name: &str, refs: &mut Vec<Range>) {
     if node.kind() == "identifier" && node_text(&node, src) == name {
         refs.push(node_range(&node));
     }

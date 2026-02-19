@@ -3,9 +3,9 @@
     {
       "version": "v0.1.0-alpha",
       "artifacts": {
-        "darwin-arm64": "wplab-lsp-aarch64-apple-darwin",
-        "linux-arm64": "wplab-lsp-aarch64-unknown-linux-gnu",
-        "linux-x86_64": "wplab-lsp-x86_64-unknown-linux-gnu"
+        "darwin-arm64": "wplabs-lsp-aarch64-apple-darwin",
+        "linux-arm64": "wplabs-lsp-aarch64-unknown-linux-gnu",
+        "linux-x86_64": "wplabs-lsp-x86_64-unknown-linux-gnu"
       }
     }
   ]

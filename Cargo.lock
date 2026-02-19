@@ -925,8 +925,8 @@ dependencies = [
 
 [[package]]
 name = "tree-sitter-oml"
-version = "0.0.1"
-source = "git+https://github.com/wp-labs/tree-sitter-oml#a950b958c38d6826f334acbb8c0a1a793997151b"
+version = "0.2.0"
+source = "git+https://github.com/wp-labs/tree-sitter-oml#994170cc99eecfafe984a0ccb03380ecbf0b7aed"
 dependencies = [
  "cc",
  "tree-sitter",
@@ -944,7 +944,7 @@ dependencies = [
 [[package]]
 name = "tree-sitter-wfl"
 version = "0.0.1"
-source = "git+https://github.com/wp-labs/tree-sitter-wfl#02edbcd29a8e94c2e0257e3f857304ca544b5113"
+source = "git+https://github.com/wp-labs/tree-sitter-wfl#04be236d16d76ab89044cf4a028185ee31ccc669"
 dependencies = [
  "cc",
  "tree-sitter",
@@ -1095,7 +1095,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d6bbff5f0aada427a1e5a6da5f1f98158182f26556f345ac9e04d36d0ebed650"
 
 [[package]]
-name = "wplab-lsp"
+name = "wplabs-lsp"
 version = "0.1.0"
 dependencies = [
  "dashmap 6.1.0",

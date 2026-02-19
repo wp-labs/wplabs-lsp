@@ -39,19 +39,19 @@ jobs:
 
       - name: Rename binary with target suffix
         run: |
-          cp target/${{ matrix.target }}/release/wplab-lsp wplab-lsp-${{ matrix.target }}
+          cp target/${{ matrix.target }}/release/wplabs-lsp wplabs-lsp-${{ matrix.target }}
 
       - name: Attest Build Provenance
         uses: actions/attest-build-provenance@v2
         continue-on-error: true
         with:
-          subject-path: wplab-lsp-${{ matrix.target }}
+          subject-path: wplabs-lsp-${{ matrix.target }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: wplab-lsp-${{ matrix.target }}
-          path: wplab-lsp-${{ matrix.target }}
+          name: wplabs-lsp-${{ matrix.target }}
+          path: wplabs-lsp-${{ matrix.target }}
           if-no-files-found: error
           retention-days: 7
 
@@ -65,30 +65,30 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: artifacts
-          pattern: wplab-lsp-*
+          pattern: wplabs-lsp-*
           merge-multiple: true
 
       - name: Create release
         uses: softprops/action-gh-release@v2
         with:
-          name: wplab-lsp ${{ github.ref_name }}
+          name: wplabs-lsp ${{ github.ref_name }}
           tag_name: ${{ github.ref_name }}
           generate_release_notes: true
           body: |
             ## Installation
 
-            Download the binary for your platform, rename to `wplab-lsp`, and place in your `PATH`:
+            Download the binary for your platform, rename to `wplabs-lsp`, and place in your `PATH`:
 
             ```bash
-            chmod +x wplab-lsp-<target>
-            mv wplab-lsp-<target> /usr/local/bin/wplab-lsp
+            chmod +x wplabs-lsp-<target>
+            mv wplabs-lsp-<target> /usr/local/bin/wplabs-lsp
             ```
 
             | File | Platform |
             |------|----------|
-            | `wplab-lsp-x86_64-unknown-linux-gnu` | Linux x86_64 |
-            | `wplab-lsp-aarch64-unknown-linux-gnu` | Linux ARM64 |
-            | `wplab-lsp-aarch64-apple-darwin` | macOS Apple Silicon |
+            | `wplabs-lsp-x86_64-unknown-linux-gnu` | Linux x86_64 |
+            | `wplabs-lsp-aarch64-unknown-linux-gnu` | Linux ARM64 |
+            | `wplabs-lsp-aarch64-apple-darwin` | macOS Apple Silicon |
 
             ### Verification
 

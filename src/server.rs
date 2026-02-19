@@ -41,7 +41,7 @@ impl LanguageServer for WfLsp {
         Ok(InitializeResult {
             capabilities: server_capabilities(),
             server_info: Some(ServerInfo {
-                name: "wplab-lsp".to_string(),
+                name: "wplabs-lsp".to_string(),
                 version: Some(env!("CARGO_PKG_VERSION").to_string()),
             }),
         })
@@ -49,7 +49,7 @@ impl LanguageServer for WfLsp {
 
     async fn initialized(&self, _: InitializedParams) {
         self.client
-            .log_message(MessageType::INFO, "wplab-lsp initialized")
+            .log_message(MessageType::INFO, "wplabs-lsp initialized")
             .await;
     }
 

@@ -21,7 +21,7 @@ fn walk_errors(node: tree_sitter::Node, src: &str, diags: &mut Vec<Diagnostic>) 
         diags.push(Diagnostic {
             range,
             severity: Some(DiagnosticSeverity::ERROR),
-            source: Some("wplab-lsp".to_string()),
+            source: Some("wplabs-lsp".to_string()),
             message,
             ..Default::default()
         });
@@ -34,7 +34,7 @@ fn walk_errors(node: tree_sitter::Node, src: &str, diags: &mut Vec<Diagnostic>) 
         diags.push(Diagnostic {
             range,
             severity: Some(DiagnosticSeverity::ERROR),
-            source: Some("wplab-lsp".to_string()),
+            source: Some("wplabs-lsp".to_string()),
             message,
             ..Default::default()
         });

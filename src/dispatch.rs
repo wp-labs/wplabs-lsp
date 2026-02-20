@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use crate::lang::gxl::GxlHandler;
 use crate::lang::oml::OmlHandler;
 use crate::lang::wfg::WfgHandler;
 use crate::lang::wfl::WflHandler;
@@ -22,6 +23,7 @@ impl Dispatcher {
             Box::new(WplHandler),
             Box::new(OmlHandler),
             Box::new(WfgHandler),
+            Box::new(GxlHandler),
         ];
 
         let mut by_lang_id = HashMap::new();

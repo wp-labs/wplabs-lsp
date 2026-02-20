@@ -924,6 +924,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "tree-sitter-gxl"
+version = "0.0.1"
+source = "git+https://github.com/wp-labs/tree-sitter-gxl#0461ca5d088fc64af8222d1cdadeb2070111c3e5"
+dependencies = [
+ "cc",
+ "tree-sitter",
+]
+
+[[package]]
 name = "tree-sitter-oml"
 version = "0.2.0"
 source = "git+https://github.com/wp-labs/tree-sitter-oml#994170cc99eecfafe984a0ccb03380ecbf0b7aed"
@@ -1107,6 +1116,7 @@ dependencies = [
  "tokio",
  "tower-lsp",
  "tree-sitter",
+ "tree-sitter-gxl",
  "tree-sitter-oml",
  "tree-sitter-wfg",
  "tree-sitter-wfl",

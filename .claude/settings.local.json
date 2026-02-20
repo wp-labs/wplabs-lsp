@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git remote:*)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(curl:*)",
+      "Bash(cargo build:*)",
+      "Bash(ls:*)",
+      "Bash(cargo test:*)"
+    ]
+  }
+}

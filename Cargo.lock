@@ -926,7 +926,7 @@ dependencies = [
 [[package]]
 name = "tree-sitter-gxl"
 version = "0.0.1"
-source = "git+https://github.com/wp-labs/tree-sitter-gxl#0461ca5d088fc64af8222d1cdadeb2070111c3e5"
+source = "git+https://github.com/wp-labs/tree-sitter-gxl#1960961f17ab71ebece07f83d166dbe1acee0643"
 dependencies = [
  "cc",
  "tree-sitter",

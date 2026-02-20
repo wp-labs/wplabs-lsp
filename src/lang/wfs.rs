@@ -32,7 +32,7 @@ impl LangHandler for WfsHandler {
         let root = tree.root_node();
 
         for i in 0..root.named_child_count() {
-            let Some(child) = root.named_child(i) else {
+            let Some(child) = root.named_child(i as u32) else {
                 continue;
             };
             if child.kind() == "window_declaration" {
@@ -58,7 +58,7 @@ impl LangHandler for WfsHandler {
         let root = tree.root_node();
 
         for i in 0..root.named_child_count() {
-            let Some(child) = root.named_child(i) else {
+            let Some(child) = root.named_child(i as u32) else {
                 continue;
             };
             if child.kind() == "window_declaration" {
@@ -88,12 +88,12 @@ impl LangHandler for WfsHandler {
 
 fn collect_field_symbols(node: &tree_sitter::Node, src: &str, symbols: &mut Vec<SymbolInfo>) {
     for i in 0..node.named_child_count() {
-        let Some(child) = node.named_child(i) else {
+        let Some(child) = node.named_child(i as u32) else {
             continue;
         };
         if child.kind() == "fields_block" {
             for j in 0..child.named_child_count() {
-                let Some(field) = child.named_child(j) else {
+                let Some(field) = child.named_child(j as u32) else {
                     continue;
                 };
                 if field.kind() == "field_declaration" {
@@ -115,7 +115,7 @@ fn collect_field_symbols(node: &tree_sitter::Node, src: &str, symbols: &mut Vec<
 
 fn collect_field_defs(node: &tree_sitter::Node, src: &str, name: &str, defs: &mut Vec<Range>) {
     for i in 0..node.named_child_count() {
-        let Some(child) = node.named_child(i) else {
+        let Some(child) = node.named_child(i as u32) else {
             continue;
         };
         if child.kind() == "field_declaration" {
@@ -134,7 +134,7 @@ fn collect_identifier_refs(node: tree_sitter::Node, src: &str, name: &str, refs:
         refs.push(node_range(&node));
     }
     for i in 0..node.named_child_count() {
-        if let Some(child) = node.named_child(i) {
+        if let Some(child) = node.named_child(i as u32) {
             collect_identifier_refs(child, src, name, refs);
         }
     }

@@ -52,7 +52,7 @@ impl LangHandler for GxlHandler {
         let root = tree.root_node();
 
         for i in 0..root.named_child_count() {
-            let Some(child) = root.named_child(i) else {
+            let Some(child) = root.named_child(i as u32) else {
                 continue;
             };
             match child.kind() {
@@ -110,7 +110,7 @@ fn collect_module_children(
     symbols: &mut Vec<SymbolInfo>,
 ) {
     for i in 0..node.named_child_count() {
-        let Some(child) = node.named_child(i) else {
+        let Some(child) = node.named_child(i as u32) else {
             continue;
         };
         match child.kind() {
@@ -176,7 +176,7 @@ fn find_defs(node: tree_sitter::Node, src: &str, name: &str, defs: &mut Vec<Rang
         _ => {}
     }
     for i in 0..node.named_child_count() {
-        if let Some(child) = node.named_child(i) {
+        if let Some(child) = node.named_child(i as u32) {
             find_defs(child, src, name, defs);
         }
     }
@@ -192,7 +192,7 @@ fn collect_identifier_refs(
         refs.push(node_range(&node));
     }
     for i in 0..node.named_child_count() {
-        if let Some(child) = node.named_child(i) {
+        if let Some(child) = node.named_child(i as u32) {
             collect_identifier_refs(child, src, name, refs);
         }
     }

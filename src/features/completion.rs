@@ -94,7 +94,7 @@ fn collect_identifiers_from_tree(
         }
     }
     for i in 0..node.named_child_count() {
-        if let Some(child) = node.named_child(i) {
+        if let Some(child) = node.named_child(i as u32) {
             collect_identifiers_from_tree(child, src, prefix, seen, items);
         }
     }

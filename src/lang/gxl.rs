@@ -104,11 +104,7 @@ impl LangHandler for GxlHandler {
     }
 }
 
-fn collect_module_children(
-    node: &tree_sitter::Node,
-    src: &str,
-    symbols: &mut Vec<SymbolInfo>,
-) {
+fn collect_module_children(node: &tree_sitter::Node, src: &str, symbols: &mut Vec<SymbolInfo>) {
     for i in 0..node.named_child_count() {
         let Some(child) = node.named_child(i as u32) else {
             continue;
@@ -182,12 +178,7 @@ fn find_defs(node: tree_sitter::Node, src: &str, name: &str, defs: &mut Vec<Rang
     }
 }
 
-fn collect_identifier_refs(
-    node: tree_sitter::Node,
-    src: &str,
-    name: &str,
-    refs: &mut Vec<Range>,
-) {
+fn collect_identifier_refs(node: tree_sitter::Node, src: &str, name: &str, refs: &mut Vec<Range>) {
     if node.kind() == "identifier" && node_text(&node, src) == name {
         refs.push(node_range(&node));
     }

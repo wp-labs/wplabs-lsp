@@ -1010,7 +1010,7 @@ dependencies = [
 [[package]]
 name = "tree-sitter-wpl"
 version = "0.0.1"
-source = "git+https://github.com/wp-labs/tree-sitter-wpl#33d4aa48d8998682bc420b8fba36f7db7e8960d4"
+source = "git+https://github.com/wp-labs/tree-sitter-wpl#b3e98be2c36884b6c493b093202290d41d435023"
 dependencies = [
  "cc",
  "tree-sitter",

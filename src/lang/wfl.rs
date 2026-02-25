@@ -21,9 +21,55 @@ impl LangHandler for WflHandler {
 
     fn keywords(&self) -> &[&str] {
         &[
-            "use", "rule", "meta", "events", "match", "keys", "duration", "on", "event", "close",
-            "score", "entity", "yield", "contract", "given", "expect", "derive", "stage", "and",
-            "or", "not", "in", "true", "false", "if", "then", "else", "join", "conv",
+            "use",
+            "rule",
+            "meta",
+            "events",
+            "match",
+            "key",
+            "on",
+            "event",
+            "close",
+            "derive",
+            "score",
+            "entity",
+            "yield",
+            "join",
+            "conv",
+            "limits",
+            "test",
+            "input",
+            "expect",
+            "options",
+            "snapshot",
+            "asof",
+            "within",
+            "fixed",
+            "session",
+            "if",
+            "then",
+            "else",
+            "in",
+            "not",
+            "true",
+            "false",
+            "for",
+            "row",
+            "tick",
+            "hits",
+            "hit",
+            "field",
+            "close_reason",
+            "distinct",
+            "count",
+            "sum",
+            "avg",
+            "min",
+            "max",
+            "max_memory",
+            "max_instances",
+            "max_throttle",
+            "on_exceed",
         ]
     }
 
@@ -54,7 +100,7 @@ impl LangHandler for WflHandler {
                         });
                     }
                 }
-                "contract_block" => {
+                "test_block" => {
                     if let Some(name_node) = child.child_by_field_name("name") {
                         symbols.push(SymbolInfo {
                             name: node_text(&name_node, src).to_string(),
@@ -81,7 +127,7 @@ impl LangHandler for WflHandler {
                 continue;
             };
             match child.kind() {
-                "rule_declaration" | "contract_block" => {
+                "rule_declaration" | "test_block" => {
                     if let Some(name_node) = child.child_by_field_name("name") {
                         if node_text(&name_node, src) == name {
                             defs.push(node_range(&name_node));
@@ -201,49 +247,161 @@ fn simple_indent_format(src: &str) -> String {
     result
 }
 
-static BUILTINS: [BuiltinInfo; 11] = [
+// L1 builtins
+static BUILTINS: [BuiltinInfo; 27] = [
     BuiltinInfo {
         name: "count",
-        signature: "count(events) -> digit",
-        documentation: "Count the number of events in a window.",
+        signature: "count(alias) -> digit",
+        documentation: "Count events in a window. Argument is a Set-level alias.",
         kind: CompletionItemKind::FUNCTION,
     },
     BuiltinInfo {
         name: "sum",
-        signature: "sum(field) -> float",
-        documentation: "Sum a numeric field across events.",
+        signature: "sum(alias.field) -> digit/float",
+        documentation: "Sum a numeric field (digit/float) across events.",
         kind: CompletionItemKind::FUNCTION,
     },
     BuiltinInfo {
         name: "avg",
-        signature: "avg(field) -> float",
-        documentation: "Average a numeric field across events.",
+        signature: "avg(alias.field) -> float",
+        documentation: "Average a numeric field (digit/float) across events.",
         kind: CompletionItemKind::FUNCTION,
     },
     BuiltinInfo {
         name: "min",
-        signature: "min(field) -> float",
-        documentation: "Minimum value of a numeric field.",
+        signature: "min(alias.field) -> T",
+        documentation: "Minimum value of a sortable field (digit/float/time/chars).",
         kind: CompletionItemKind::FUNCTION,
     },
     BuiltinInfo {
         name: "max",
-        signature: "max(field) -> float",
-        documentation: "Maximum value of a numeric field.",
+        signature: "max(alias.field) -> T",
+        documentation: "Maximum value of a sortable field (digit/float/time/chars).",
         kind: CompletionItemKind::FUNCTION,
     },
     BuiltinInfo {
         name: "distinct",
-        signature: "distinct(field) -> array",
-        documentation: "Get distinct values of a field.",
+        signature: "distinct(alias.field) -> digit",
+        documentation: "Distinct count of a Column-level field projection.",
         kind: CompletionItemKind::FUNCTION,
     },
     BuiltinInfo {
         name: "fmt",
         signature: "fmt(template, ...args) -> chars",
-        documentation: "Format a string with placeholders.",
+        documentation: "Format a string with {} placeholders. Placeholder count must match args.",
         kind: CompletionItemKind::FUNCTION,
     },
+    // L2 builtins
+    BuiltinInfo {
+        name: "baseline",
+        signature: "baseline(expr, duration[, method]) -> float",
+        documentation: "Rolling baseline mean. expr must be digit/float. Optional method: \"mean\" (default) / \"ewma\" / \"median\" (L3).",
+        kind: CompletionItemKind::FUNCTION,
+    },
+    BuiltinInfo {
+        name: "window.has",
+        signature: "window.has(field[, target_field]) -> bool",
+        documentation: "Check if current context field value exists in a static/dimension window. Two-arg form maps to a different target field name.",
+        kind: CompletionItemKind::FUNCTION,
+    },
+    BuiltinInfo {
+        name: "hit",
+        signature: "hit(cond) -> float",
+        documentation: "Map boolean condition to score: true -> 1.0, false -> 0.0.",
+        kind: CompletionItemKind::FUNCTION,
+    },
+    BuiltinInfo {
+        name: "time_diff",
+        signature: "time_diff(t1, t2) -> float",
+        documentation: "Difference between two timestamps in seconds. Both args must be time type.",
+        kind: CompletionItemKind::FUNCTION,
+    },
+    BuiltinInfo {
+        name: "time_bucket",
+        signature: "time_bucket(field, interval) -> time",
+        documentation: "Bucket a time field by interval (DURATION literal). Returns time.",
+        kind: CompletionItemKind::FUNCTION,
+    },
+    BuiltinInfo {
+        name: "contains",
+        signature: "contains(field, pattern) -> bool",
+        documentation: "Check if field (chars/ip/hex) contains the pattern substring.",
+        kind: CompletionItemKind::FUNCTION,
+    },
+    BuiltinInfo {
+        name: "regex_match",
+        signature: "regex_match(field, pattern) -> bool",
+        documentation: "Check if field (chars/ip/hex) matches the regex pattern (STRING literal).",
+        kind: CompletionItemKind::FUNCTION,
+    },
+    BuiltinInfo {
+        name: "len",
+        signature: "len(field) -> digit",
+        documentation: "String length of a chars/ip/hex field.",
+        kind: CompletionItemKind::FUNCTION,
+    },
+    BuiltinInfo {
+        name: "lower",
+        signature: "lower(field) -> chars",
+        documentation: "Convert a chars field to lowercase.",
+        kind: CompletionItemKind::FUNCTION,
+    },
+    BuiltinInfo {
+        name: "upper",
+        signature: "upper(field) -> chars",
+        documentation: "Convert a chars field to uppercase.",
+        kind: CompletionItemKind::FUNCTION,
+    },
+    BuiltinInfo {
+        name: "coalesce",
+        signature: "coalesce(expr, default) -> T",
+        documentation: "Return expr if non-null, otherwise default. Both must have the same type.",
+        kind: CompletionItemKind::FUNCTION,
+    },
+    BuiltinInfo {
+        name: "try",
+        signature: "try(expr, default) -> T",
+        documentation: "Evaluate expr; on error return default. Both must have the same type.",
+        kind: CompletionItemKind::FUNCTION,
+    },
+    // L3 builtins
+    BuiltinInfo {
+        name: "collect_set",
+        signature: "collect_set(alias.field) -> array/T",
+        documentation: "Collect distinct values within a window (L3). Returns array of field's type.",
+        kind: CompletionItemKind::FUNCTION,
+    },
+    BuiltinInfo {
+        name: "collect_list",
+        signature: "collect_list(alias.field) -> array/T",
+        documentation: "Collect ordered values within a window (L3). Returns array of field's type.",
+        kind: CompletionItemKind::FUNCTION,
+    },
+    BuiltinInfo {
+        name: "first",
+        signature: "first(alias.field) -> T",
+        documentation: "First value of a field within a window (L3).",
+        kind: CompletionItemKind::FUNCTION,
+    },
+    BuiltinInfo {
+        name: "last",
+        signature: "last(alias.field) -> T",
+        documentation: "Last value of a field within a window (L3).",
+        kind: CompletionItemKind::FUNCTION,
+    },
+    BuiltinInfo {
+        name: "stddev",
+        signature: "stddev(alias.field) -> float",
+        documentation: "Standard deviation of a numeric field (digit/float) within a window (L3).",
+        kind: CompletionItemKind::FUNCTION,
+    },
+    BuiltinInfo {
+        name: "percentile",
+        signature: "percentile(alias.field, p) -> float",
+        documentation: "Percentile of a numeric field (digit/float). p is 0-100 (L3).",
+        kind: CompletionItemKind::FUNCTION,
+    },
+    // Utility
     BuiltinInfo {
         name: "Now::time",
         signature: "Now::time() -> time",
@@ -254,18 +412,6 @@ static BUILTINS: [BuiltinInfo; 11] = [
         name: "Now::date",
         signature: "Now::date() -> chars",
         documentation: "Current date string.",
-        kind: CompletionItemKind::FUNCTION,
-    },
-    BuiltinInfo {
-        name: "Now::hour",
-        signature: "Now::hour() -> digit",
-        documentation: "Current hour (0-23).",
-        kind: CompletionItemKind::FUNCTION,
-    },
-    BuiltinInfo {
-        name: "has",
-        signature: "has(field) -> bool",
-        documentation: "Check if a dimension table contains a value.",
         kind: CompletionItemKind::FUNCTION,
     },
 ];

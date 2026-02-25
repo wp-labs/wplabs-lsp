@@ -53,7 +53,7 @@ pub fn hover(handler: &dyn LangHandler, tree: &Tree, src: &str, pos: Position) -
     }
 
     // For type keywords (field types)
-    let type_nodes = ["base_type", "field_type", "data_type"];
+    let type_nodes = ["base_type", "field_type", "data_type", "privacy_type"];
     if type_nodes.contains(&node.kind()) {
         return Some(Hover {
             contents: HoverContents::Markup(MarkupContent {
@@ -77,9 +77,9 @@ fn find_definition_context(node: &tree_sitter::Node, _tree: &Tree, _src: &str) -
                 return Some("rule declaration".to_string());
             }
         }
-        "contract_block" => {
+        "contract_block" | "test_block" => {
             if parent.child_by_field_name("name").map(|n| n.id()) == Some(node.id()) {
-                return Some("contract block".to_string());
+                return Some("test block".to_string());
             }
         }
         "window_declaration" => {
@@ -116,6 +116,23 @@ fn find_definition_context(node: &tree_sitter::Node, _tree: &Tree, _src: &str) -
             if parent.child_by_field_name("name").map(|n| n.id()) == Some(node.id()) {
                 return Some("rule declaration".to_string());
             }
+        }
+        // ── OML nodes ──
+        "name_field" => {
+            if parent.child_by_field_name("name").map(|n| n.id()) == Some(node.id()) {
+                return Some("configuration name".to_string());
+            }
+        }
+        "target_name" => {
+            return Some("target binding".to_string());
+        }
+        "privacy_item" => {
+            if parent.child_by_field_name("name").map(|n| n.id()) == Some(node.id()) {
+                return Some("privacy field".to_string());
+            }
+        }
+        "map_targets" => {
+            return Some("object field".to_string());
         }
         _ => {}
     }

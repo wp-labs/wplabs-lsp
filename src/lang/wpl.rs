@@ -50,7 +50,7 @@ impl LangHandler for WplHandler {
         let root = tree.root_node();
 
         for i in 0..root.named_child_count() {
-            let Some(child) = root.named_child(i) else {
+            let Some(child) = root.named_child(i as u32) else {
                 continue;
             };
             match child.kind() {
@@ -104,7 +104,7 @@ impl LangHandler for WplHandler {
 
 fn collect_rule_symbols(node: &tree_sitter::Node, src: &str, symbols: &mut Vec<SymbolInfo>) {
     for i in 0..node.named_child_count() {
-        let Some(child) = node.named_child(i) else {
+        let Some(child) = node.named_child(i as u32) else {
             continue;
         };
         if child.kind() == "rule_decl" {
@@ -133,7 +133,7 @@ fn find_decl_defs(node: tree_sitter::Node, src: &str, name: &str, defs: &mut Vec
         _ => {}
     }
     for i in 0..node.named_child_count() {
-        if let Some(child) = node.named_child(i) {
+        if let Some(child) = node.named_child(i as u32) {
             find_decl_defs(child, src, name, defs);
         }
     }
@@ -145,7 +145,7 @@ fn collect_identifier_refs(node: tree_sitter::Node, src: &str, name: &str, refs:
         refs.push(node_range(&node));
     }
     for i in 0..node.named_child_count() {
-        if let Some(child) = node.named_child(i) {
+        if let Some(child) = node.named_child(i as u32) {
             collect_identifier_refs(child, src, name, refs);
         }
     }

@@ -54,7 +54,7 @@ impl LangHandler for WfgHandler {
         let root = tree.root_node();
 
         for i in 0..root.named_child_count() {
-            let Some(child) = root.named_child(i) else {
+            let Some(child) = root.named_child(i as u32) else {
                 continue;
             };
             if child.kind() == "scenario_declaration" {
@@ -95,7 +95,7 @@ impl LangHandler for WfgHandler {
 
 fn collect_stream_symbols(node: &tree_sitter::Node, src: &str, symbols: &mut Vec<SymbolInfo>) {
     for i in 0..node.named_child_count() {
-        let Some(child) = node.named_child(i) else {
+        let Some(child) = node.named_child(i as u32) else {
             continue;
         };
         if child.kind() == "stream_block" {
@@ -114,7 +114,7 @@ fn collect_stream_symbols(node: &tree_sitter::Node, src: &str, symbols: &mut Vec
 
 fn collect_inject_symbols(node: &tree_sitter::Node, src: &str, symbols: &mut Vec<SymbolInfo>) {
     for i in 0..node.named_child_count() {
-        let Some(child) = node.named_child(i) else {
+        let Some(child) = node.named_child(i as u32) else {
             continue;
         };
         if child.kind() == "inject_block" {
@@ -150,7 +150,7 @@ fn find_scenario_defs(node: tree_sitter::Node, src: &str, name: &str, defs: &mut
         _ => {}
     }
     for i in 0..node.named_child_count() {
-        if let Some(child) = node.named_child(i) {
+        if let Some(child) = node.named_child(i as u32) {
             find_scenario_defs(child, src, name, defs);
         }
     }
@@ -161,7 +161,7 @@ fn collect_identifier_refs(node: tree_sitter::Node, src: &str, name: &str, refs:
         refs.push(node_range(&node));
     }
     for i in 0..node.named_child_count() {
-        if let Some(child) = node.named_child(i) {
+        if let Some(child) = node.named_child(i as u32) {
             collect_identifier_refs(child, src, name, refs);
         }
     }

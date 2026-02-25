@@ -48,7 +48,7 @@ pub fn collect_identifiers<'a>(node: Node<'a>, src: &str, results: &mut Vec<(Str
         results.push((name, node_range(&node)));
     }
     for i in 0..node.named_child_count() {
-        if let Some(child) = node.named_child(i) {
+        if let Some(child) = node.named_child(i as u32) {
             collect_identifiers(child, src, results);
         }
     }

@@ -1,3 +1,4 @@
+pub mod gxl;
 pub mod oml;
 pub mod wfg;
 pub mod wfl;
@@ -24,7 +25,7 @@ pub struct SymbolInfo {
     pub children: Vec<SymbolInfo>,
 }
 
-/// Trait implemented by each language (WFL, WFS, WPL, OML, WFG).
+/// Trait implemented by each language (WFL, WFS, WPL, OML, WFG, GXL).
 ///
 /// Provides language-specific data (keywords, builtins, grammar) and
 /// tree-sitter-based analysis methods (symbol extraction, definition

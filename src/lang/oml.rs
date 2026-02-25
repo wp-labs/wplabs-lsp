@@ -74,16 +74,16 @@ impl LangHandler for OmlHandler {
         let root = tree.root_node();
 
         for i in 0..root.named_child_count() {
-            let Some(child) = root.named_child(i) else {
+            let Some(child) = root.named_child(i as u32) else {
                 continue;
             };
             if child.kind() == "header" {
                 for j in 0..child.named_child_count() {
-                    let Some(hc) = child.named_child(j) else {
+                    let Some(hc) = child.named_child(j as u32) else {
                         continue;
                     };
                     if hc.kind() == "name_field" || hc.kind() == "rule_field" {
-                        if let Some(val) = hc.named_child(0) {
+                        if let Some(val) = hc.named_child(0u32) {
                             symbols.push(SymbolInfo {
                                 name: node_text(&val, src).to_string(),
                                 kind: if hc.kind() == "name_field" {
@@ -108,7 +108,7 @@ impl LangHandler for OmlHandler {
             // Static block items as symbols
             if child.kind() == "static_block" {
                 for j in 0..child.named_child_count() {
-                    let Some(si) = child.named_child(j) else {
+                    let Some(si) = child.named_child(j as u32) else {
                         continue;
                     };
                     if si.kind() == "static_item" {
@@ -159,7 +159,7 @@ fn collect_target_symbols(
     symbols: &mut Vec<SymbolInfo>,
 ) {
     for i in 0..node.named_child_count() {
-        let Some(child) = node.named_child(i) else {
+        let Some(child) = node.named_child(i as u32) else {
             continue;
         };
         if child.kind() == "target" {
@@ -190,7 +190,7 @@ fn collect_target_defs(node: tree_sitter::Node, src: &str, name: &str, defs: &mu
         }
     }
     for i in 0..node.named_child_count() {
-        if let Some(child) = node.named_child(i) {
+        if let Some(child) = node.named_child(i as u32) {
             collect_target_defs(child, src, name, defs);
         }
     }
@@ -204,7 +204,7 @@ fn collect_refs(node: tree_sitter::Node, src: &str, name: &str, refs: &mut Vec<R
         refs.push(node_range(&node));
     }
     for i in 0..node.named_child_count() {
-        if let Some(child) = node.named_child(i) {
+        if let Some(child) = node.named_child(i as u32) {
             collect_refs(child, src, name, refs);
         }
     }

@@ -82,7 +82,7 @@ impl LangHandler for WflHandler {
         let root = tree.root_node();
 
         for i in 0..root.named_child_count() {
-            let Some(child) = root.named_child(i) else {
+            let Some(child) = root.named_child(i as u32) else {
                 continue;
             };
             match child.kind() {
@@ -123,7 +123,7 @@ impl LangHandler for WflHandler {
         let root = tree.root_node();
 
         for i in 0..root.named_child_count() {
-            let Some(child) = root.named_child(i) else {
+            let Some(child) = root.named_child(i as u32) else {
                 continue;
             };
             match child.kind() {
@@ -158,12 +158,12 @@ impl LangHandler for WflHandler {
 
 fn collect_event_aliases(node: &tree_sitter::Node, src: &str, symbols: &mut Vec<SymbolInfo>) {
     for i in 0..node.named_child_count() {
-        let Some(child) = node.named_child(i) else {
+        let Some(child) = node.named_child(i as u32) else {
             continue;
         };
         if child.kind() == "events_block" {
             for j in 0..child.named_child_count() {
-                let Some(ev) = child.named_child(j) else {
+                let Some(ev) = child.named_child(j as u32) else {
                     continue;
                 };
                 if ev.kind() == "event_declaration" {
@@ -190,7 +190,7 @@ fn collect_event_def_ranges(
     defs: &mut Vec<Range>,
 ) {
     for i in 0..node.named_child_count() {
-        let Some(child) = node.named_child(i) else {
+        let Some(child) = node.named_child(i as u32) else {
             continue;
         };
         if child.kind() == "event_declaration" {
@@ -209,7 +209,7 @@ fn collect_identifier_refs(node: tree_sitter::Node, src: &str, name: &str, refs:
         refs.push(node_range(&node));
     }
     for i in 0..node.named_child_count() {
-        if let Some(child) = node.named_child(i) {
+        if let Some(child) = node.named_child(i as u32) {
             collect_identifier_refs(child, src, name, refs);
         }
     }

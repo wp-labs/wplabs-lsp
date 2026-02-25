@@ -42,7 +42,7 @@ fn walk_errors(node: tree_sitter::Node, src: &str, diags: &mut Vec<Diagnostic>) 
     }
 
     for i in 0..node.child_count() {
-        if let Some(child) = node.child(i) {
+        if let Some(child) = node.child(i as u32) {
             walk_errors(child, src, diags);
         }
     }

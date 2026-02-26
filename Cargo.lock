@@ -959,7 +959,7 @@ dependencies = [
 [[package]]
 name = "tree-sitter-gxl"
 version = "0.0.1"
-source = "git+https://github.com/wp-labs/tree-sitter-gxl#f1f87c03a1ac333e2b8ca044dee2517083fe82df"
+source = "git+https://github.com/wp-labs/tree-sitter-gxl?rev=85e678d9aedac0f3422ad547d668b3b8b0103b9b#85e678d9aedac0f3422ad547d668b3b8b0103b9b"
 dependencies = [
  "cc",
  "tree-sitter",
@@ -974,7 +974,7 @@ checksum = "009994f150cc0cd50ff54917d5bc8bffe8cad10ca10d81c34da2ec421ae61782"
 [[package]]
 name = "tree-sitter-oml"
 version = "0.2.0"
-source = "git+https://github.com/wp-labs/tree-sitter-oml#6105fa6360df78e2d477e9e496551875e5e93ea2"
+source = "git+https://github.com/wp-labs/tree-sitter-oml?rev=6105fa6360df78e2d477e9e496551875e5e93ea2#6105fa6360df78e2d477e9e496551875e5e93ea2"
 dependencies = [
  "cc",
  "tree-sitter",
@@ -983,7 +983,7 @@ dependencies = [
 [[package]]
 name = "tree-sitter-wfg"
 version = "0.0.1"
-source = "git+https://github.com/wp-labs/tree-sitter-wfg#d60dcd01183611bb0f89af79c0e948ce803a65bf"
+source = "git+https://github.com/wp-labs/tree-sitter-wfg?rev=d60dcd01183611bb0f89af79c0e948ce803a65bf#d60dcd01183611bb0f89af79c0e948ce803a65bf"
 dependencies = [
  "cc",
  "tree-sitter",
@@ -992,7 +992,7 @@ dependencies = [
 [[package]]
 name = "tree-sitter-wfl"
 version = "0.0.1"
-source = "git+https://github.com/wp-labs/tree-sitter-wfl#b01008acbaae18653cbf79d03733bd6ff8f3a553"
+source = "git+https://github.com/wp-labs/tree-sitter-wfl?rev=4d4c55f519d8449f399bcaca2860570ebc8b2595#4d4c55f519d8449f399bcaca2860570ebc8b2595"
 dependencies = [
  "cc",
  "tree-sitter",
@@ -1001,7 +1001,7 @@ dependencies = [
 [[package]]
 name = "tree-sitter-wfs"
 version = "0.0.1"
-source = "git+https://github.com/wp-labs/tree-sitter-wfs#f6f88ca4601ee043d2b3b1c6cc6f8a7e5d7d9574"
+source = "git+https://github.com/wp-labs/tree-sitter-wfs?rev=39e5fb246b7412fb43660dbb162bdb3bf9ec2404#39e5fb246b7412fb43660dbb162bdb3bf9ec2404"
 dependencies = [
  "cc",
  "tree-sitter",
@@ -1010,7 +1010,7 @@ dependencies = [
 [[package]]
 name = "tree-sitter-wpl"
 version = "0.0.1"
-source = "git+https://github.com/wp-labs/tree-sitter-wpl#b3e98be2c36884b6c493b093202290d41d435023"
+source = "git+https://github.com/wp-labs/tree-sitter-wpl?rev=3cc86519ff4adeb818e75b70c1c565098c1876b0#3cc86519ff4adeb818e75b70c1c565098c1876b0"
 dependencies = [
  "cc",
  "tree-sitter",

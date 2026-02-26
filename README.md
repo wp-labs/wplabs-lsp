@@ -53,6 +53,13 @@ The binary will be at `target/release/wplabs-lsp`.
 cargo test --all
 ```
 
+### WFL design-alignment checks
+
+`src/lang/wfl.rs` includes tests that guard alignment with the current WFL design grammar:
+- keyword set regression (`test/input` kept, `contract/given` excluded),
+- builtin coverage regression (L1/L2/L3 documented functions),
+- parse/symbol smoke test for rule + session window + test block.
+
 ## Editor Integration
 
 `wplabs-lsp` communicates over **stdin/stdout** using the standard LSP protocol and can be integrated into any LSP-compatible editor.

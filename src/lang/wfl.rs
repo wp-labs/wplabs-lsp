@@ -417,3 +417,177 @@ static BUILTINS: [BuiltinInfo; 27] = [
         kind: CompletionItemKind::FUNCTION,
     },
 ];
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::collections::HashSet;
+    use tree_sitter::Parser;
+
+    fn parse_ok(src: &str) -> tree_sitter::Tree {
+        let mut parser = Parser::new();
+        parser
+            .set_language(&tree_sitter_wfl::language())
+            .expect("load tree-sitter-wfl language");
+        let tree = parser.parse(src, None).expect("parse source");
+        let mut errors = Vec::new();
+        collect_errors(tree.root_node(), src, &mut errors);
+        assert!(
+            !tree.root_node().has_error(),
+            "source should parse without ERROR nodes: {errors:?}"
+        );
+        tree
+    }
+
+    fn collect_errors(node: tree_sitter::Node, src: &str, errors: &mut Vec<String>) {
+        if node.is_error() || node.is_missing() {
+            let start = node.start_position();
+            let end = node.end_position();
+            let snippet = &src[node.byte_range()];
+            errors.push(format!(
+                "{} [{}:{}-{}:{}] {:?}",
+                node.kind(),
+                start.row,
+                start.column,
+                end.row,
+                end.column,
+                snippet
+            ));
+        }
+        for i in 0..node.child_count() {
+            if let Some(child) = node.child(i as u32) {
+                collect_errors(child, src, errors);
+            }
+        }
+    }
+
+    #[test]
+    fn wfl_keywords_follow_current_design_terms() {
+        let handler = WflHandler;
+        let keywords: HashSet<&str> = handler.keywords().iter().copied().collect();
+
+        for required in [
+            "rule", "test", "input", "expect", "key", "join", "snapshot", "asof", "within",
+            "fixed", "session", "limits",
+        ] {
+            assert!(
+                keywords.contains(required),
+                "missing required keyword: {required}"
+            );
+        }
+
+        assert!(
+            !keywords.contains("contract"),
+            "deprecated grammar term should not appear in completions"
+        );
+        assert!(
+            !keywords.contains("given"),
+            "deprecated grammar term should not appear in completions"
+        );
+    }
+
+    #[test]
+    fn wfl_builtins_cover_design_core_functions() {
+        let handler = WflHandler;
+        let builtins: HashSet<&str> = handler.builtins().iter().map(|b| b.name).collect();
+
+        for required in [
+            "count",
+            "sum",
+            "avg",
+            "min",
+            "max",
+            "distinct",
+            "fmt",
+            "baseline",
+            "window.has",
+            "hit",
+            "time_diff",
+            "time_bucket",
+            "contains",
+            "regex_match",
+            "len",
+            "lower",
+            "upper",
+            "coalesce",
+            "try",
+            "collect_set",
+            "collect_list",
+            "first",
+            "last",
+            "stddev",
+            "percentile",
+        ] {
+            assert!(
+                builtins.contains(required),
+                "missing required builtin: {required}"
+            );
+        }
+    }
+
+    #[test]
+    fn parse_rule_test_and_session_examples_from_design() {
+        let source = r#"
+use "security.ws"
+
+rule login_detect {
+  meta { description = "demo" }
+  events {
+    e: auth_events && action == "failed"
+  }
+  match<e.uid:5m:fixed> {
+    key { uid = e.uid; }
+    on event { e | count >= 1; }
+    on close { e | count >= 1; }
+    derive { sev = if count(e) > 3 then 90.0 else 50.0; }
+  } -> score(70.0)
+  join threat_dim snapshot on e.sip == threat_dim.ip
+  entity(ip, e.sip)
+  yield alerts@v1 (
+    uid = e.uid,
+    sip = e.sip,
+    sev = @sev,
+    msg = fmt("{}", e.sip)
+  )
+  limits {
+    max_memory = "64MB";
+    max_instances = 100;
+    max_throttle = "100/s";
+    on_exceed = "throttle";
+  }
+}
+
+rule login_session {
+  events { e: auth_events }
+  match<e.uid:session(30m)> {
+    on event { e | count >= 1; }
+  } -> score(1.0)
+  entity(user, e.uid)
+  yield alerts (uid = e.uid)
+}
+
+test login_detect_basic for login_detect {
+  input {
+    row(e, uid = "u1", sip = "1.1.1.1", action = "failed");
+    tick(5m);
+  }
+  expect {
+    hits >= 1;
+    hit[0].origin == "event";
+  }
+  options {
+    close_trigger = "timeout";
+    eval_mode = "strict";
+  }
+}
+"#;
+
+        let tree = parse_ok(source);
+        let handler = WflHandler;
+        let symbols = handler.document_symbols(&tree, source);
+        let names: HashSet<&str> = symbols.iter().map(|s| s.name.as_str()).collect();
+        assert!(names.contains("login_detect"));
+        assert!(names.contains("login_session"));
+        assert!(names.contains("login_detect_basic"));
+    }
+}

@@ -97,9 +97,19 @@ fn find_definition_context(node: &tree_sitter::Node, _tree: &Tree, _src: &str) -
                 return Some("event alias".to_string());
             }
         }
+        "stream_statement" => {
+            if parent.child_by_field_name("stream").map(|n| n.id()) == Some(node.id()) {
+                return Some("stream declaration".to_string());
+            }
+        }
         "stream_block" => {
             if parent.child_by_field_name("alias").map(|n| n.id()) == Some(node.id()) {
                 return Some("stream alias".to_string());
+            }
+        }
+        "injection_case" => {
+            if parent.child_by_field_name("stream").map(|n| n.id()) == Some(node.id()) {
+                return Some("injection stream".to_string());
             }
         }
         "field_declaration" => {

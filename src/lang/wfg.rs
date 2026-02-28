@@ -23,25 +23,37 @@ impl LangHandler for WfgHandler {
         &[
             "use",
             "scenario",
-            "seed",
-            "time",
-            "duration",
-            "total",
+            "traffic",
             "stream",
-            "inject",
-            "for",
-            "on",
-            "faults",
-            "oracle",
+            "gen",
+            "wave",
+            "burst",
+            "timeline",
+            "injection",
             "hit",
             "near_miss",
-            "non_hit",
+            "miss",
+            "seq",
+            "with",
+            "expect",
+            "duration",
+            "tick",
+            "rows",
+            "emit",
+            "base",
+            "amp",
+            "period",
+            "shape",
+            "peak",
+            "every",
+            "hold",
             "true",
             "false",
-            "out_of_order",
-            "late",
-            "duplicate",
-            "drop",
+            "deterministic",
+            "poisson",
+            "sine",
+            "triangle",
+            "square",
         ]
     }
 
@@ -98,8 +110,24 @@ fn collect_stream_symbols(node: &tree_sitter::Node, src: &str, symbols: &mut Vec
         let Some(child) = node.named_child(i as u32) else {
             continue;
         };
-        if child.kind() == "stream_block" {
-            if let Some(alias) = child.child_by_field_name("alias") {
+        match child.kind() {
+            // New syntax: stream <name> gen ...
+            "stream_statement" => {
+                if let Some(stream) = child.child_by_field_name("stream") {
+                    symbols.push(SymbolInfo {
+                        name: node_text(&stream, src).to_string(),
+                        kind: SymbolKind::VARIABLE,
+                        range: node_range(&child),
+                        selection_range: node_range(&stream),
+                        children: vec![],
+                    });
+                }
+            }
+            // Backward-compatible fallback for legacy syntax.
+            "stream_block" => {
+                let Some(alias) = child.child_by_field_name("alias") else {
+                    continue;
+                };
                 symbols.push(SymbolInfo {
                     name: node_text(&alias, src).to_string(),
                     kind: SymbolKind::VARIABLE,
@@ -108,7 +136,9 @@ fn collect_stream_symbols(node: &tree_sitter::Node, src: &str, symbols: &mut Vec
                     children: vec![],
                 });
             }
+            _ => {}
         }
+        collect_stream_symbols(&child, src, symbols);
     }
 }
 
@@ -117,8 +147,32 @@ fn collect_inject_symbols(node: &tree_sitter::Node, src: &str, symbols: &mut Vec
         let Some(child) = node.named_child(i as u32) else {
             continue;
         };
-        if child.kind() == "inject_block" {
-            if let Some(rule_node) = child.child_by_field_name("rule") {
+        match child.kind() {
+            // New syntax: hit<30%> auth_events { ... }
+            "injection_case" => {
+                let Some(mode_node) = child.child_by_field_name("mode") else {
+                    continue;
+                };
+                let Some(stream_node) = child.child_by_field_name("stream") else {
+                    continue;
+                };
+                symbols.push(SymbolInfo {
+                    name: format!(
+                        "{} {}",
+                        node_text(&mode_node, src),
+                        node_text(&stream_node, src)
+                    ),
+                    kind: SymbolKind::EVENT,
+                    range: node_range(&child),
+                    selection_range: node_range(&stream_node),
+                    children: vec![],
+                });
+            }
+            // Backward-compatible fallback for legacy syntax.
+            "inject_block" => {
+                let Some(rule_node) = child.child_by_field_name("rule") else {
+                    continue;
+                };
                 symbols.push(SymbolInfo {
                     name: format!("inject {}", node_text(&rule_node, src)),
                     kind: SymbolKind::EVENT,
@@ -127,7 +181,9 @@ fn collect_inject_symbols(node: &tree_sitter::Node, src: &str, symbols: &mut Vec
                     children: vec![],
                 });
             }
+            _ => {}
         }
+        collect_inject_symbols(&child, src, symbols);
     }
 }
 
@@ -137,6 +193,13 @@ fn find_scenario_defs(node: tree_sitter::Node, src: &str, name: &str, defs: &mut
             if let Some(name_node) = node.child_by_field_name("name") {
                 if node_text(&name_node, src) == name {
                     defs.push(node_range(&name_node));
+                }
+            }
+        }
+        "stream_statement" => {
+            if let Some(stream) = node.child_by_field_name("stream") {
+                if node_text(&stream, src) == name {
+                    defs.push(node_range(&stream));
                 }
             }
         }
@@ -193,48 +256,51 @@ fn simple_indent_format(src: &str) -> String {
     result
 }
 
-static BUILTINS: [BuiltinInfo; 7] = [
-    BuiltinInfo {
-        name: "ipv4",
-        signature: "ipv4(pool: N)",
-        documentation: "Generate random IPv4 addresses from a pool of N unique IPs.",
-        kind: CompletionItemKind::FUNCTION,
-    },
-    BuiltinInfo {
-        name: "pattern",
-        signature: "pattern(template)",
-        documentation:
-            "Generate values from a template pattern. Supports {seq:NNNN} for sequences.",
-        kind: CompletionItemKind::FUNCTION,
-    },
-    BuiltinInfo {
-        name: "uniform",
-        signature: "uniform(min, max)",
-        documentation: "Generate uniformly distributed random numbers in [min, max].",
-        kind: CompletionItemKind::FUNCTION,
-    },
-    BuiltinInfo {
-        name: "choice",
-        signature: "choice([values...])",
-        documentation: "Randomly choose from a list of values.",
-        kind: CompletionItemKind::FUNCTION,
-    },
-    BuiltinInfo {
-        name: "counter",
-        signature: "counter(start, step)",
-        documentation: "Generate sequential counter values.",
-        kind: CompletionItemKind::FUNCTION,
-    },
-    BuiltinInfo {
-        name: "normal",
-        signature: "normal(mean, stddev)",
-        documentation: "Generate normally distributed random numbers.",
-        kind: CompletionItemKind::FUNCTION,
-    },
-    BuiltinInfo {
-        name: "zipf",
-        signature: "zipf(n, exponent)",
-        documentation: "Generate Zipf-distributed values from [1, n].",
-        kind: CompletionItemKind::FUNCTION,
-    },
-];
+static BUILTINS: [BuiltinInfo; 0] = [];
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::collections::HashSet;
+
+    #[test]
+    fn wfg_keywords_follow_new_design_terms() {
+        let handler = WfgHandler;
+        let keywords: HashSet<&str> = handler.keywords().iter().copied().collect();
+
+        for required in [
+            "use",
+            "scenario",
+            "traffic",
+            "stream",
+            "gen",
+            "injection",
+            "hit",
+            "near_miss",
+            "miss",
+            "expect",
+            "seq",
+            "with",
+        ] {
+            assert!(
+                keywords.contains(required),
+                "missing required keyword: {required}"
+            );
+        }
+
+        for removed in [
+            "inject", "non_hit", "oracle", "faults", "seed", "time", "total",
+        ] {
+            assert!(
+                !keywords.contains(removed),
+                "legacy keyword should not appear in completions: {removed}"
+            );
+        }
+    }
+
+    #[test]
+    fn wfg_builtins_are_empty_for_keyword_driven_dsl() {
+        let handler = WfgHandler;
+        assert!(handler.builtins().is_empty());
+    }
+}

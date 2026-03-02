@@ -53,12 +53,17 @@ The binary will be at `target/release/wplabs-lsp`.
 cargo test --all
 ```
 
-### WFL design-alignment checks
+### Design-alignment checks
 
 `src/lang/wfl.rs` includes tests that guard alignment with the current WFL design grammar:
 - keyword set regression (`test/input` kept, `contract/given` excluded),
 - builtin coverage regression (L1/L2/L3 documented functions),
 - parse/symbol smoke test for rule + session window + test block.
+
+`src/lang/wfg.rs` includes tests that guard alignment with `tree-sitter-wfg/docs/wfg-design.md`:
+- keyword set regression for the new scenario/traffic/injection/expect syntax,
+- legacy term exclusion (`inject`, `non_hit`, `oracle`, `faults`, etc.),
+- parse/symbol smoke test for the canonical new WFG scenario example.
 
 ## Editor Integration
 

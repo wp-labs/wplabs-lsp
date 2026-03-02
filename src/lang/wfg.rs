@@ -40,6 +40,7 @@ impl LangHandler for WfgHandler {
             "tick",
             "rows",
             "emit",
+            "auto",
             "base",
             "amp",
             "period",
@@ -110,33 +111,16 @@ fn collect_stream_symbols(node: &tree_sitter::Node, src: &str, symbols: &mut Vec
         let Some(child) = node.named_child(i as u32) else {
             continue;
         };
-        match child.kind() {
-            // New syntax: stream <name> gen ...
-            "stream_statement" => {
-                if let Some(stream) = child.child_by_field_name("stream") {
-                    symbols.push(SymbolInfo {
-                        name: node_text(&stream, src).to_string(),
-                        kind: SymbolKind::VARIABLE,
-                        range: node_range(&child),
-                        selection_range: node_range(&stream),
-                        children: vec![],
-                    });
-                }
-            }
-            // Backward-compatible fallback for legacy syntax.
-            "stream_block" => {
-                let Some(alias) = child.child_by_field_name("alias") else {
-                    continue;
-                };
+        if child.kind() == "stream_statement" {
+            if let Some(stream) = child.child_by_field_name("stream") {
                 symbols.push(SymbolInfo {
-                    name: node_text(&alias, src).to_string(),
+                    name: node_text(&stream, src).to_string(),
                     kind: SymbolKind::VARIABLE,
                     range: node_range(&child),
-                    selection_range: node_range(&alias),
+                    selection_range: node_range(&stream),
                     children: vec![],
                 });
             }
-            _ => {}
         }
         collect_stream_symbols(&child, src, symbols);
     }
@@ -147,41 +131,24 @@ fn collect_inject_symbols(node: &tree_sitter::Node, src: &str, symbols: &mut Vec
         let Some(child) = node.named_child(i as u32) else {
             continue;
         };
-        match child.kind() {
-            // New syntax: hit<30%> auth_events { ... }
-            "injection_case" => {
-                let Some(mode_node) = child.child_by_field_name("mode") else {
-                    continue;
-                };
-                let Some(stream_node) = child.child_by_field_name("stream") else {
-                    continue;
-                };
-                symbols.push(SymbolInfo {
-                    name: format!(
-                        "{} {}",
-                        node_text(&mode_node, src),
-                        node_text(&stream_node, src)
-                    ),
-                    kind: SymbolKind::EVENT,
-                    range: node_range(&child),
-                    selection_range: node_range(&stream_node),
-                    children: vec![],
-                });
-            }
-            // Backward-compatible fallback for legacy syntax.
-            "inject_block" => {
-                let Some(rule_node) = child.child_by_field_name("rule") else {
-                    continue;
-                };
-                symbols.push(SymbolInfo {
-                    name: format!("inject {}", node_text(&rule_node, src)),
-                    kind: SymbolKind::EVENT,
-                    range: node_range(&child),
-                    selection_range: node_range(&rule_node),
-                    children: vec![],
-                });
-            }
-            _ => {}
+        if child.kind() == "injection_case" {
+            let Some(mode_node) = child.child_by_field_name("mode") else {
+                continue;
+            };
+            let Some(stream_node) = child.child_by_field_name("stream") else {
+                continue;
+            };
+            symbols.push(SymbolInfo {
+                name: format!(
+                    "{} {}",
+                    node_text(&mode_node, src),
+                    node_text(&stream_node, src)
+                ),
+                kind: SymbolKind::EVENT,
+                range: node_range(&child),
+                selection_range: node_range(&stream_node),
+                children: vec![],
+            });
         }
         collect_inject_symbols(&child, src, symbols);
     }
@@ -200,13 +167,6 @@ fn find_scenario_defs(node: tree_sitter::Node, src: &str, name: &str, defs: &mut
             if let Some(stream) = node.child_by_field_name("stream") {
                 if node_text(&stream, src) == name {
                     defs.push(node_range(&stream));
-                }
-            }
-        }
-        "stream_block" => {
-            if let Some(alias) = node.child_by_field_name("alias") {
-                if node_text(&alias, src) == name {
-                    defs.push(node_range(&alias));
                 }
             }
         }
@@ -262,6 +222,47 @@ static BUILTINS: [BuiltinInfo; 0] = [];
 mod tests {
     use super::*;
     use std::collections::HashSet;
+    use tree_sitter::Parser;
+
+    fn parse_ok(src: &str) -> tree_sitter::Tree {
+        let mut parser = Parser::new();
+        parser
+            .set_language(&tree_sitter_wfg::language())
+            .expect("load tree-sitter-wfg language");
+        let tree = parser.parse(src, None).expect("parse source");
+
+        let mut errors = Vec::new();
+        collect_errors(tree.root_node(), src, &mut errors);
+        assert!(
+            !tree.root_node().has_error(),
+            "source should parse without ERROR nodes: {errors:?}"
+        );
+
+        tree
+    }
+
+    fn collect_errors(node: tree_sitter::Node, src: &str, errors: &mut Vec<String>) {
+        if node.is_error() || node.is_missing() {
+            let start = node.start_position();
+            let end = node.end_position();
+            let snippet = &src[node.byte_range()];
+            errors.push(format!(
+                "{} [{}:{}-{}:{}] {:?}",
+                node.kind(),
+                start.row,
+                start.column,
+                end.row,
+                end.column,
+                snippet
+            ));
+        }
+
+        for i in 0..node.child_count() {
+            if let Some(child) = node.child(i as u32) {
+                collect_errors(child, src, errors);
+            }
+        }
+    }
 
     #[test]
     fn wfg_keywords_follow_new_design_terms() {
@@ -281,6 +282,16 @@ mod tests {
             "expect",
             "seq",
             "with",
+            "duration",
+            "tick",
+            "rows",
+            "emit",
+            "auto",
+            "deterministic",
+            "poisson",
+            "wave",
+            "burst",
+            "timeline",
         ] {
             assert!(
                 keywords.contains(required),
@@ -288,9 +299,7 @@ mod tests {
             );
         }
 
-        for removed in [
-            "inject", "non_hit", "oracle", "faults", "seed", "time", "total",
-        ] {
+        for removed in ["inject", "non_hit", "oracle", "faults", "time", "total"] {
             assert!(
                 !keywords.contains(removed),
                 "legacy keyword should not appear in completions: {removed}"
@@ -302,5 +311,69 @@ mod tests {
     fn wfg_builtins_are_empty_for_keyword_driven_dsl() {
         let handler = WfgHandler;
         assert!(handler.builtins().is_empty());
+    }
+
+    #[test]
+    fn parse_and_extract_symbols_from_new_wfg_design_example() {
+        let source = r#"
+use "../schemas/security.wfs"
+use "../rules/brute_force.wfl"
+
+#[duration=10m]
+scenario brute_force_detect<seed=42> {
+  traffic {
+    stream auth_events gen 100/s
+    stream auth_events gen wave(base=80/s, amp=40/s, period=2m, shape=sine)
+    stream auth_events gen burst(base=20/s, peak=120/s, every=5m, hold=30s)
+    stream auth_events gen timeline {
+      0s..2m=20/s
+      2m..6m=120/s
+    }
+  }
+
+  injection {
+    hit<30%> auth_events {
+      user seq {
+        use(login="failed") with(3,2m)
+        use(action="port_scan") with(1,1m)
+      }
+    }
+
+    near_miss<10%> auth_events {
+      user seq {
+        use(login="failed") with(2,2m)
+      }
+    }
+
+    miss<60%> auth_events {
+      user seq {
+        use(login="success") with(1,30s)
+      }
+    }
+  }
+
+  expect {
+    hit(brute_force_then_scan) >= 95%
+    near_miss(brute_force_then_scan) <= 1%
+    miss(brute_force_then_scan) <= 0.1%
+  }
+}
+"#;
+
+        let tree = parse_ok(source);
+        let handler = WfgHandler;
+        let symbols = handler.document_symbols(&tree, source);
+        assert_eq!(symbols.len(), 1);
+        assert_eq!(symbols[0].name, "brute_force_detect");
+
+        let child_names: HashSet<&str> = symbols[0]
+            .children
+            .iter()
+            .map(|s| s.name.as_str())
+            .collect();
+        assert!(child_names.contains("auth_events"));
+        assert!(child_names.contains("hit auth_events"));
+        assert!(child_names.contains("near_miss auth_events"));
+        assert!(child_names.contains("miss auth_events"));
     }
 }
